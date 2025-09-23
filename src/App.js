@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from 'axios';
 import FilmDetails from './FilmDetails';
+import TopActors from './TopActors';
 import './App.css';
 
 function App() {
@@ -17,6 +18,12 @@ function App() {
     <Router>
       <div className="App">
         <h1>🎬 Top 5 Most Rented Films</h1>
+
+        <nav style={{ marginBottom: '2rem' }}>
+          <Link to="/">Home</Link> | {' '}
+          <Link to="/actors">View Top 5 Actors</Link>
+        </nav>
+
         <Routes>
           <Route path="/" element={
             <ul>
@@ -30,6 +37,7 @@ function App() {
             </ul>
           } />
           <Route path="/films/:id" element={<FilmDetails />} />
+          <Route path="/actors" element={<TopActors />} />
         </Routes>
       </div>
     </Router>
