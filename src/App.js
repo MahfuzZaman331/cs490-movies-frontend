@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import axios from 'axios';
 import FilmDetails from './FilmDetails';
 import TopActors from './TopActors';
+import ActorDetails from './ActorDetails'; // ✅ NEW
 import './App.css';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
           } />
           <Route path="/films/:id" element={<FilmDetails />} />
           <Route path="/actors" element={<TopActors />} />
+          <Route path="/actors/:id" element={<ActorDetails />} /> {/* ✅ NEW */}
         </Routes>
       </div>
     </Router>

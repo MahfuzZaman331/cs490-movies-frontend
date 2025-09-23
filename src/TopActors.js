@@ -1,6 +1,7 @@
 // src/TopActors.js
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 function TopActors() {
@@ -18,7 +19,9 @@ function TopActors() {
       <ul>
         {actors.map((actor) => (
           <li key={actor.actor_id}>
-            <strong>{actor.name}</strong> — {actor.film_count} films
+            <Link to={`/actors/${actor.actor_id}`}>
+              <strong>{actor.name}</strong>
+            </Link> — {actor.film_count} films
           </li>
         ))}
       </ul>
