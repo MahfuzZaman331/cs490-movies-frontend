@@ -18,8 +18,7 @@ function ActorDetails() {
         console.error('Error fetching actor films:', err);
       });
 
-    // OPTIONAL: fetch actor's name (if not passed via link)
-    axios.get('http://localhost:3001/api/actors/top') // temp hack
+    axios.get('http://localhost:3001/api/actors/top')
       .then((res) => {
         const actor = res.data.find((a) => String(a.actor_id) === id);
         if (actor) setActorName(actor.name);

@@ -7,16 +7,9 @@ function CustomerDetails() {
   const [customer, setCustomer] = useState(null);
 
   useEffect(() => {
-    const fetchCustomer = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3001/api/customers/${id}`);
-        setCustomer(response.data);
-      } catch (err) {
-        console.error('Error fetching customer:', err);
-      }
-    };
-
-    fetchCustomer();
+    axios.get(`http://localhost:3001/api/customers/${id}`)
+      .then(res => setCustomer(res.data))
+      .catch(err => console.error('Error fetching customer:', err));
   }, [id]);
 
   if (!customer) return <div>Loading...</div>;
@@ -28,6 +21,15 @@ function CustomerDetails() {
       <p><strong>Name:</strong> {customer.first_name} {customer.last_name}</p>
       <p><strong>Email:</strong> {customer.email}</p>
       <p><strong>Active:</strong> {customer.active ? 'Yes' : 'No'}</p>
+
+      <h3>Recent Rentals</h3>
+      <ul>
+        {customer.rentals.map((r, index) => (
+          <li key={index}>
+            {r.title} — {new Date(r.rental_date).toLocaleDateString()}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
