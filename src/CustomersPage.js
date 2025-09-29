@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 function CustomersPage() {
-  const [q, setQ] = useState('');
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [rows, setRows] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [total, setTotal] = useState(0);
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
 
-  const load = () => {
-    axios
-      .get(`http://localhost:3001/api/customers?page=${page}&limit=${limit}&q=${encodeURIComponent(q)}`)
-      .then((res) => {
-        setRows(res.data.data || []);
-        setTotal(res.data.total || 0);
+  const limit = 10;
+
+  const load = useCallback(() => {
+    axios.get(`http://localhost:3001/api/customers?limit=${limit}&page=${page}&search=${search}`)
+      .then(res => {
+        setCustomers(res.data.results);
+        setTotal(res.data.total);
       })
-      .catch(() => {});
-  };
+      .catch(err => console.error('Error fetching customers:', err));
+  }, [limit, page, search]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line
-  }, [page]);
+  }, [load]);
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -32,54 +30,42 @@ function CustomersPage() {
   };
 
   return (
-    <div style={{ padding: '1.5rem' }}>
+    <div style={{ padding: '2rem' }}>
       <h2>Customers</h2>
-      <form onSubmit={onSearch} style={{ marginBottom: '1rem' }}>
+      <form onSubmit={onSearch}>
         <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by ID, first or last name"
-          style={{ padding: '0.5rem', width: 280, marginRight: 8 }}
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by first or last name"
         />
         <button type="submit">Search</button>
       </form>
-
-      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%', maxWidth: 900 }}>
+      <table style={{ marginTop: '1rem', borderCollapse: 'collapse', width: '100%' }}>
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Address</th>
             <th>Active</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((c) => (
+          {customers.map(c => (
             <tr key={c.customer_id}>
-              <td>{c.customer_id}</td>
+              <td><Link to={`/customers/${c.customer_id}`}>{c.customer_id}</Link></td>
               <td>{c.first_name} {c.last_name}</td>
               <td>{c.email}</td>
-              <td>{c.address}</td>
               <td>{c.active ? 'Yes' : 'No'}</td>
             </tr>
           ))}
-          {!rows.length && (
-            <tr>
-              <td colSpan="5" style={{ textAlign: 'center' }}>No results</td>
-            </tr>
-          )}
         </tbody>
       </table>
-
-      <div style={{ marginTop: 12 }}>
-        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>Prev</button>
-        <span style={{ margin: '0 8px' }}>Page {page} of {totalPages}</span>
-        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>Next</button>
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <Link to="/">Home</Link>
+      <div style={{ marginTop: '1rem' }}>
+        Page {page} of {Math.ceil(total / limit)}
+        <br />
+        {page > 1 && <button onClick={() => setPage(page - 1)}>Previous</button>}
+        {page < Math.ceil(total / limit) && <button onClick={() => setPage(page + 1)}>Next</button>}
       </div>
     </div>
   );
