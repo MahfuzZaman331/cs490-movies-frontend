@@ -1,36 +1,34 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 function CustomersPage() {
   const [customers, setCustomers] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-
-  const limit = 10;
-
-  const load = useCallback(() => {
-    axios.get(`http://localhost:3001/api/customers?limit=${limit}&page=${page}&search=${search}`)
-      .then(res => {
-        setCustomers(res.data.results);
-        setTotal(res.data.total);
-      })
-      .catch(err => console.error('Error fetching customers:', err));
-  }, [limit, page, search]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    const fetchCustomers = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3001/api/customers?page=${page}&search=${search}`);
+        setCustomers(res.data.customers);
+        setTotalPages(res.data.totalPages);
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+      }
+    };
+
+    fetchCustomers();
+  }, [page, search]);
 
   const onSearch = (e) => {
     e.preventDefault();
-    setPage(1);
-    load();
+    setPage(1); // useEffect will trigger fetch
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div style={{ marginLeft: '200px' }}>
       <h2>Customers</h2>
       <form onSubmit={onSearch}>
         <input
@@ -41,31 +39,35 @@ function CustomersPage() {
         />
         <button type="submit">Search</button>
       </form>
-      <table style={{ marginTop: '1rem', borderCollapse: 'collapse', width: '100%' }}>
+
+      <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Active</th>
+            <th>ID</th><th>Name</th><th>Email</th><th>Active</th>
           </tr>
         </thead>
         <tbody>
-          {customers.map(c => (
-            <tr key={c.customer_id}>
-              <td><Link to={`/customers/${c.customer_id}`}>{c.customer_id}</Link></td>
-              <td>{c.first_name} {c.last_name}</td>
-              <td>{c.email}</td>
-              <td>{c.active ? 'Yes' : 'No'}</td>
-            </tr>
-          ))}
+          {customers.length > 0 ? (
+            customers.map((c) => (
+              <tr key={c.customer_id}>
+                <td><Link to={`/customers/${c.customer_id}`}>{c.customer_id}</Link></td>
+                <td>{c.first_name} {c.last_name}</td>
+                <td>{c.email}</td>
+                <td>{c.active ? 'Yes' : 'No'}</td>
+              </tr>
+            ))
+          ) : (
+            <tr><td colSpan="4">No results</td></tr>
+          )}
         </tbody>
       </table>
-      <div style={{ marginTop: '1rem' }}>
-        Page {page} of {Math.ceil(total / limit)}
-        <br />
-        {page > 1 && <button onClick={() => setPage(page - 1)}>Previous</button>}
-        {page < Math.ceil(total / limit) && <button onClick={() => setPage(page + 1)}>Next</button>}
+
+      <div>
+        Page {page} of {totalPages}
+        <div>
+          <button disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</button>
+          <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>Next</button>
+        </div>
       </div>
     </div>
   );
