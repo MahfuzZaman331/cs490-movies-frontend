@@ -29,7 +29,7 @@ function RentFilm() {
 
   return (
     <div>
-      <h2>🛒 Rent a Film</h2>
+      <h2>Rent a Film</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Select Film: </label>

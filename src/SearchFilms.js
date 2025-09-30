@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function SearchFilms() {
   const [query, setQuery] = useState('');
@@ -19,7 +20,7 @@ function SearchFilms() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h2>🔍 Search Films</h2>
+      <h2>Search Films</h2>
       <form onSubmit={handleSearch}>
         <input
           type="text"
@@ -33,7 +34,7 @@ function SearchFilms() {
       <ul>
         {results.map((film) => (
           <li key={film.film_id}>
-            {film.title}
+            <Link to={`/films/${film.film_id}`}>{film.title}</Link>
           </li>
         ))}
       </ul>
